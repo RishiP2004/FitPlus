@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Plan, log and track your workouts</h1>
+  <p>FitPlus keeps your workouts, body metrics and progress in one simple place.</p>
+  <p class="actions">
+    <a class="button" href="{{ url_for('auth.register') }}">Create an account</a>
+    <a class="button secondary" href="{{ url_for('auth.login') }}">Log in</a>
+  </p>
+</section>
+<section class="cards">
+  <div class="card"><h2>Exercise library</h2><p>50+ exercises with instructions, by muscle group and equipment.</p></div>
+  <div class="card"><h2>Workout logging</h2><p>Log sets, reps and weight in seconds. <span class="muted">(coming in Sprint 2)</span></p></div>
+  <div class="card"><h2>Progress</h2><p>Goals and charts that show your improvement. <span class="muted">(coming in Sprint 3)</span></p></div>
+</section>
+{% endblock %}

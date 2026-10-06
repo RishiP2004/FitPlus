@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<p class="muted">Signed in as {{ g.user.email }}</p>
+{% if not profile %}
+  <div class="card notice">
+    <h2>Finish setting up</h2>
+    <p>Add your profile so FitPlus fits your level and goal.</p>
+    <a class="button" href="{{ url_for('profile.edit') }}">Set up profile</a>
+  </div>
+{% else %}
+  <div class="cards">
+    <div class="card">
+      <h2>Your profile</h2>
+      <dl class="facts">
+        <dt>Goal</dt><dd>{{ shown.goal }}</dd>
+        <dt>Level</dt><dd>{{ shown.fitness_level }}</dd>
+        <dt>Weight</dt><dd>{{ shown.weight }} {{ shown.weight_unit }}</dd>
+        <dt>Height</dt><dd>{{ shown.height }} {{ shown.height_unit }}</dd>
+        <dt>Age</dt><dd>{{ shown.age }}</dd>
+      </dl>
+      <a href="{{ url_for('profile.edit') }}">Edit profile</a>
+    </div>
+    <div class="card">
+      <h2>Exercise library</h2>
+      <p>{{ exercise_count }} exercises ready to browse.</p>
+      <a class="button" href="{{ url_for('exercises.index') }}">Browse exercises</a>
+    </div>
+    <div class="card">
+      <h2>This week</h2>
+      <p class="muted">Workout logging and weekly summary arrive in the next sprints.</p>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
