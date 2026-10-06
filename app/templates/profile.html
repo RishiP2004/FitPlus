@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% macro err(name) %}{% if errors[name] %}<p class="field-error" id="{{ name }}-error">{{ errors[name] }}</p>{% endif %}{% endmacro %}
+{% macro aria(name) %}{% if errors[name] %}aria-invalid="true" aria-describedby="{{ name }}-error"{% endif %}{% endmacro %}
+{% block content %}
+<div class="form-card wide">
+  <h1>{{ 'Set up your profile' if is_new else 'Your profile' }}</h1>
+  {% if is_new %}<p class="muted">This helps FitPlus fit your level and goal. You can change it any time.</p>{% endif %}
+  <form method="post" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <fieldset class="units">
+      <legend>Units</legend>
+      <label class="inline"><input type="radio" name="unit_system" value="metric" {% if values.unit_system != 'imperial' %}checked{% endif %}> kg / cm</label>
+      <label class="inline"><input type="radio" name="unit_system" value="imperial" {% if values.unit_system == 'imperial' %}checked{% endif %}> lb / in</label>
+      {{ err('unit_system') }}
+    </fieldset>
+    <div class="grid-3">
+      <div>
+        <label for="age">Age</label>
+        <input id="age" name="age" type="number" inputmode="numeric" min="13" max="100" required value="{{ values.age if values.age is not none else '' }}" {{ aria('age') }}>
+        {{ err('age') }}
+      </div>
+      <div>
+        <label for="weight">Weight (<span data-unit="weight">{{ values.weight_unit }}</span>)</label>
+        <input id="weight" name="weight" type="number" inputmode="decimal" step="0.1" required value="{{ values.weight if values.weight is not none else '' }}" {{ aria('weight') }}>
+        {{ err('weight') }}
+      </div>
+      <div>
+        <label for="height">Height (<span data-unit="height">{{ values.height_unit }}</span>)</label>
+        <input id="height" name="height" type="number" inputmode="decimal" step="0.1" required value="{{ values.height if values.height is not none else '' }}" {{ aria('height') }}>
+        {{ err('height') }}
+      </div>
+    </div>
+    <label for="fitness_level">Fitness level</label>
+    <select id="fitness_level" name="fitness_level" required {{ aria('fitness_level') }}>
+      <option value="">Choose…</option>
+      {% for level in levels %}<option {% if values.fitness_level == level %}selected{% endif %}>{{ level }}</option>{% endfor %}
+    </select>
+    {{ err('fitness_level') }}
+    <label for="goal">Main goal</label>
+    <select id="goal" name="goal" required {{ aria('goal') }}>
+      <option value="">Choose…</option>
+      {% for goal in goals %}<option {% if values.goal == goal %}selected{% endif %}>{{ goal }}</option>{% endfor %}
+    </select>
+    {{ err('goal') }}
+    <button type="submit" class="button full">Save profile</button>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='profile.js') }}" defer></script>{% endblock %}

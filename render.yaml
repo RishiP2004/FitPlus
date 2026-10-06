@@ -1,0 +1,29 @@
+# Render Blueprint: free web service + free PostgreSQL database.
+# In Render: New > Blueprint > pick this repo. Render reads this file.
+services:
+  - type: web
+    name: fitplus
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # Migrate + seed once, then start (AUTO_INIT_DB=0 so workers don't race).
+    startCommand: flask --app wsgi init-db && gunicorn wsgi:app --workers 2 --bind 0.0.0.0:$PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SESSION_COOKIE_SECURE
+        value: "1"
+      - key: AUTO_INIT_DB
+        value: "0"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fitplus-db
+          property: connectionString
+
+databases:
+  - name: fitplus-db
+    plan: free
+    databaseName: fitplus

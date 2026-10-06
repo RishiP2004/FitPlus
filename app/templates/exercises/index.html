@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Exercise library{% endblock %}
+{% block content %}
+<h1>Exercise library</h1>
+<form class="filters" method="get" role="search" id="exercise-filters">
+  <div>
+    <label for="q">Search by name</label>
+    <input id="q" name="q" type="search" value="{{ q }}" placeholder="e.g. squat" autocomplete="off">
+  </div>
+  <div>
+    <label for="muscle">Muscle group</label>
+    <select id="muscle" name="muscle">
+      <option value="">All</option>
+      {% for m in muscles %}<option {% if m == muscle %}selected{% endif %}>{{ m }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="equipment">Equipment</label>
+    <select id="equipment" name="equipment">
+      <option value="">All</option>
+      {% for e in equipment_list %}<option {% if e == equipment %}selected{% endif %}>{{ e }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="filter-actions">
+    <button type="submit" class="button">Apply</button>
+    <a href="{{ url_for('exercises.index') }}">Clear</a>
+  </div>
+</form>
+<p class="muted" id="result-count" aria-live="polite">{{ total }} exercise{{ '' if total == 1 else 's' }}</p>
+<div id="exercise-groups">
+{% for group, items in groups %}
+  <section class="muscle-group" data-group="{{ group }}" {% if not (items|map(attribute='id')|select('in', matches)|list) %}hidden{% endif %}>
+    <h2>{{ group }}</h2>
+    <ul class="exercise-list">
+      {% for ex in items %}
+      <li class="exercise" data-name="{{ ex.name|lower }}" data-muscle="{{ ex.muscle_group }}" data-equipment="{{ ex.equipment }}" {% if ex.id not in matches %}hidden{% endif %}>
+        <a href="{{ url_for('exercises.detail', exercise_id=ex.id) }}">{{ ex.name }}</a>
+        <span class="tags"><span class="tag">{{ ex.muscle_group }}</span><span class="tag tag-alt">{{ ex.equipment }}</span></span>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endfor %}
+</div>
+<p id="no-results" class="empty" {% if total %}hidden{% endif %}>No exercises match. Try a different name or clear the filters.</p>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='exercises.js') }}" defer></script>{% endblock %}

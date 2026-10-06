@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ exercise.name }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('exercises.index') }}">← Back to exercise library</a></p>
+<article class="card detail">
+  <h1>{{ exercise.name }}</h1>
+  <p class="tags"><span class="tag">{{ exercise.muscle_group }}</span><span class="tag tag-alt">{{ exercise.equipment }}</span></p>
+  <dl class="facts">
+    <dt>Muscle group</dt><dd>{{ exercise.muscle_group }}</dd>
+    <dt>Equipment</dt><dd>{{ exercise.equipment }}</dd>
+  </dl>
+  <h2>How to do it</h2>
+  <p class="instructions">{{ exercise.instructions }}</p>
+</article>
+{% endblock %}
