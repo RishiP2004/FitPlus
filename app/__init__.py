@@ -5,7 +5,7 @@ from pathlib import Path
 
 from flask import Flask, g, render_template, session
 
-from . import db
+from . import db, util
 from .security import csrf_protect, csrf_token
 
 
@@ -24,6 +24,7 @@ def create_app(test_config=None):
         SESSION_COOKIE_SECURE=os.environ.get("SESSION_COOKIE_SECURE", "0") == "1",
         PERMANENT_SESSION_LIFETIME=timedelta(days=7),
         AUTO_INIT_DB=os.environ.get("AUTO_INIT_DB", "1") == "1",
+        DISPLAY_TZ=os.environ.get("DISPLAY_TZ", "America/Toronto"),
     )
     if test_config:
         app.config.update(test_config)
@@ -32,16 +33,21 @@ def create_app(test_config=None):
         app.logger.warning("SECRET_KEY is not set. Set it in the environment before deploying.")
 
     db.init_app(app)
+    util.init_app(app)
 
-    from . import auth, exercises, main, profile
+    from . import auth, exercises, history, main, profile, routines, workouts
 
     app.register_blueprint(main.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(profile.bp)
     app.register_blueprint(exercises.bp)
+    app.register_blueprint(routines.bp)
+    app.register_blueprint(workouts.bp)
+    app.register_blueprint(history.bp)
 
     app.before_request(csrf_protect)
     app.before_request(auth.load_logged_in_user)
+    app.before_request(workouts.load_active_workout)
     app.jinja_env.globals["csrf_token"] = csrf_token
 
     @app.after_request

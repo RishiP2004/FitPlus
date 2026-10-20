@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}{{ session.name }}{% endblock %}
+{% block content %}
+{% if not active %}<p><a href="{{ url_for('history.index') }}">← Workout history</a></p>{% endif %}
+<div class="page-head">
+  <div>
+    <h1>{{ session.name }}</h1>
+    <p class="muted">
+      {% if active %}
+        In progress · started {{ session.started_at|local }} ·
+        <span id="elapsed" data-started="{{ session.started_at.isoformat() }}Z">elapsed time</span>
+      {% else %}
+        {{ session.started_at|local }} · {{ session.duration_seconds|duration }} · {{ total_sets }} set{{ '' if total_sets == 1 else 's' }} · volume {{ volume }} {{ unit }}
+      {% endif %}
+    </p>
+  </div>
+  {% if active %}
+  <form method="post" action="{{ url_for('workouts.finish', session_id=session.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="button">Finish workout</button>
+  </form>
+  {% endif %}
+</div>
+{% if active %}<p class="hint">Every set is saved as soon as you add it, so you can refresh or close this page and come back.</p>{% endif %}
+
+{% for ex in exercises %}
+<section class="card exercise-block" id="ex-{{ ex.id }}">
+  <div class="row">
+    <h2 class="grow">{{ ex.name }}
+      {% if ex.target_sets %}<span class="hint">target {{ ex.target_sets }} × {{ ex.target_reps }}</span>{% endif %}
+    </h2>
+    <form method="post" action="{{ url_for('workouts.remove_exercise', session_id=session.id, item_id=ex.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="link-button danger-text" aria-label="Remove {{ ex.name }}">Remove</button>
+    </form>
+  </div>
+  {% if ex.sets %}
+  <table class="sets">
+    <thead><tr><th scope="col">Set</th><th scope="col">Reps</th><th scope="col">Weight ({{ unit }})</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+    <tbody>
+    {% for s in ex.sets %}
+      {% if edit_set == s.id %}
+      <tr>
+        <td>{{ s.set_number }}</td>
+        <td colspan="3">
+          <form method="post" action="{{ url_for('workouts.update_set', session_id=session.id, set_id=s.id) }}" class="inline-form compact">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label>Reps <input name="reps" type="number" min="1" max="1000" value="{{ s.reps }}" required></label>
+            <label>Weight <input name="weight" type="number" min="0" step="0.5" value="{{ s.weight }}" required></label>
+            <button type="submit" class="button small">Save</button>
+            <a href="{{ url_for('workouts.view', session_id=session.id) }}#ex-{{ ex.id }}">Cancel</a>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td>{{ s.set_number }}</td><td>{{ s.reps }}</td><td>{{ s.weight }}</td>
+        <td class="actions-cell">
+          <a href="{{ url_for('workouts.view', session_id=session.id, edit=s.id) }}#ex-{{ ex.id }}">Edit</a>
+          <form method="post" action="{{ url_for('workouts.delete_set', session_id=session.id, set_id=s.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="link-button danger-text" aria-label="Delete set {{ s.set_number }}">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endif %}
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No sets logged yet.</p>
+  {% endif %}
+  {% set last = ex.sets[-1] if ex.sets else none %}
+  <form method="post" action="{{ url_for('workouts.add_set', session_id=session.id, item_id=ex.id) }}" class="inline-form compact add-set">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Reps <input name="reps" type="number" min="1" max="1000" required value="{{ last.reps if last else (ex.target_reps or '') }}"></label>
+    <label>Weight ({{ unit }}) <input name="weight" type="number" min="0" step="0.5" required value="{{ last.weight if last else '' }}"></label>
+    <button type="submit" class="button small">Add set</button>
+  </form>
+</section>
+{% else %}
+<p class="empty">No exercises in this workout yet. Add one below.</p>
+{% endfor %}
+
+<form method="post" action="{{ url_for('workouts.add_exercise', session_id=session.id) }}" class="card inline-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="grow">
+    <label for="add-exercise">Add an exercise</label>
+    {% set picker_id = 'add-exercise' %}{% include "_exercise_picker.html" %}
+  </div>
+  <button type="submit" class="button secondary">Add exercise</button>
+</form>
+
+<form method="post" action="{{ url_for('workouts.save_notes', session_id=session.id) }}" class="card" id="notes">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="notes-text">Notes <span class="hint">(up to {{ notes_max }} characters)</span></label>
+  <textarea id="notes-text" name="notes" maxlength="{{ notes_max }}" rows="3" placeholder="How did it go?">{{ session.notes or '' }}</textarea>
+  <p class="hint" id="notes-count" aria-live="polite"></p>
+  <button type="submit" class="button small secondary">Save notes</button>
+</form>
+
+<p class="section">
+  <a class="danger-text" href="{{ url_for('workouts.delete', session_id=session.id) }}">{{ 'Discard this workout' if active else 'Delete this workout' }}</a>
+</p>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='workout.js') }}" defer></script>{% endblock %}

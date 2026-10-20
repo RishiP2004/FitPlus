@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ template.name }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('routines.index') }}">← All templates</a></p>
+<div class="page-head">
+  <h1>{{ template.name }}</h1>
+  <form method="post" action="{{ url_for('workouts.start') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="template_id" value="{{ template.id }}">
+    <button type="submit" class="button" {% if not items %}disabled title="Add an exercise first"{% endif %}>Start this workout</button>
+  </form>
+</div>
+
+<form method="post" action="{{ url_for('routines.rename', template_id=template.id) }}" class="card inline-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="grow">
+    <label for="name">Template name</label>
+    <input id="name" name="name" type="text" maxlength="60" required value="{{ template.name }}">
+  </div>
+  <button type="submit" class="button secondary">Rename</button>
+</form>
+
+<h2 class="section">Exercises</h2>
+{% if items %}
+<ol class="item-list">
+  {% for item in items %}
+  <li class="card" id="item-{{ item.id }}">
+    <div class="row">
+      <div class="grow">
+        <span class="item-title">{{ loop.index }}. {{ item.name }}</span>
+        <span class="tags"><span class="tag">{{ item.muscle_group }}</span><span class="tag tag-alt">{{ item.equipment }}</span></span>
+      </div>
+      <form method="post" action="{{ url_for('routines.move_exercise', template_id=template.id, item_id=item.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="icon-button" name="direction" value="up" aria-label="Move {{ item.name }} up" {% if loop.first %}disabled{% endif %}>↑</button>
+        <button class="icon-button" name="direction" value="down" aria-label="Move {{ item.name }} down" {% if loop.last %}disabled{% endif %}>↓</button>
+      </form>
+    </div>
+    <div class="row">
+      <form method="post" action="{{ url_for('routines.update_exercise', template_id=template.id, item_id=item.id) }}" class="inline-form compact">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>Sets <input name="target_sets" type="number" min="1" max="20" value="{{ item.target_sets }}" required></label>
+        <label>Reps <input name="target_reps" type="number" min="1" max="100" value="{{ item.target_reps }}" required></label>
+        <button type="submit" class="button small secondary">Save</button>
+      </form>
+      <form method="post" action="{{ url_for('routines.remove_exercise', template_id=template.id, item_id=item.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="link-button danger-text">Remove</button>
+      </form>
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+{% else %}
+<p class="empty">No exercises yet. Add one from the library below.</p>
+{% endif %}
+
+<form method="post" action="{{ url_for('routines.add_exercise', template_id=template.id) }}" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <h2>Add an exercise</h2>
+  <label for="exercise_id">Exercise</label>
+  {% set picker_id = 'exercise_id' %}{% include "_exercise_picker.html" %}
+  <div class="grid-3">
+    <div><label for="target_sets">Target sets</label><input id="target_sets" name="target_sets" type="number" min="1" max="20" value="3" required></div>
+    <div><label for="target_reps">Target reps</label><input id="target_reps" name="target_reps" type="number" min="1" max="100" value="10" required></div>
+    <div class="align-end"><button type="submit" class="button full">Add to template</button></div>
+  </div>
+</form>
+
+<p class="section"><a class="danger-text" href="{{ url_for('routines.delete', template_id=template.id) }}">Delete this template</a></p>
+{% endblock %}

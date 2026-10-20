@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Workout templates{% endblock %}
+{% block content %}
+<h1>Workout templates</h1>
+<p class="muted">Save routines you do often, then start a workout from them in one click.</p>
+<form method="post" action="{{ url_for('routines.create') }}" class="card inline-form" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="grow">
+    <label for="name">New template name</label>
+    <input id="name" name="name" type="text" maxlength="60" required placeholder="e.g. Push day" value="{{ name }}"
+           {% if errors.name %}aria-invalid="true" aria-describedby="name-error"{% endif %}>
+    {% if errors.name %}<p class="field-error" id="name-error">{{ errors.name }}</p>{% endif %}
+  </div>
+  <button type="submit" class="button">Create template</button>
+</form>
+{% if templates %}
+<ul class="item-list">
+  {% for t in templates %}
+  <li class="card row">
+    <div class="grow">
+      <a class="item-title" href="{{ url_for('routines.edit', template_id=t.id) }}">{{ t.name }}</a>
+      <span class="muted">{{ t.exercise_count }} exercise{{ '' if t.exercise_count == 1 else 's' }}</span>
+    </div>
+    <form method="post" action="{{ url_for('workouts.start') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="template_id" value="{{ t.id }}">
+      <button type="submit" class="button small">Start</button>
+    </form>
+    <a class="button small secondary" href="{{ url_for('routines.edit', template_id=t.id) }}">Edit</a>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="empty">No templates yet. Create your first one above.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Workout history{% endblock %}
+{% block content %}
+<h1>Workout history</h1>
+<form method="get" class="filters history-filters" novalidate>
+  <div>
+    <label for="from">From</label>
+    <input id="from" name="from" type="date" value="{{ raw_from }}" {% if errors.from %}aria-invalid="true" aria-describedby="from-error"{% endif %}>
+    {% if errors.from %}<p class="field-error" id="from-error">{{ errors.from }}</p>{% endif %}
+  </div>
+  <div>
+    <label for="to">To</label>
+    <input id="to" name="to" type="date" value="{{ raw_to }}" {% if errors.to %}aria-invalid="true" aria-describedby="to-error"{% endif %}>
+    {% if errors.to %}<p class="field-error" id="to-error">{{ errors.to }}</p>{% endif %}
+  </div>
+  <div class="filter-actions">
+    <button type="submit" class="button">Filter</button>
+    <a href="{{ url_for('history.index') }}">Clear</a>
+  </div>
+</form>
+<p class="muted" id="session-count">{{ sessions|length }} workout{{ '' if sessions|length == 1 else 's' }}{% if filtered %} in this date range{% endif %}</p>
+{% if sessions %}
+<div class="table-wrap">
+<table class="history">
+  <thead><tr><th scope="col">Date</th><th scope="col">Workout</th><th scope="col">Duration</th><th scope="col">Exercises</th><th scope="col">Sets</th><th scope="col">Volume ({{ unit }})</th></tr></thead>
+  <tbody>
+  {% for s in sessions %}
+    <tr>
+      <td>{{ s.started_at|local }}</td>
+      <td><a href="{{ url_for('workouts.view', session_id=s.id) }}">{{ s.name }}</a>{% if s.notes %} <span class="hint" title="Has notes">✎</span>{% endif %}</td>
+      <td>{{ s.duration_seconds|duration }}</td><td>{{ s.exercise_count }}</td><td>{{ s.set_count }}</td><td>{{ s.volume }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="empty">{% if filtered %}No workouts in this date range.{% else %}No finished workouts yet. <a href="{{ url_for('workouts.start') }}">Start one</a>.{% endif %}</p>
+{% endif %}
+
+<h2 class="section">Body weight</h2>
+{% if weights %}
+<ul class="plain-list">
+  {% for w in weights %}<li>{{ w.entry_date.strftime('%b') }} {{ w.entry_date.day }}, {{ w.entry_date.year }}: <strong>{{ w.weight }} {{ unit }}</strong></li>{% endfor %}
+</ul>
+{% else %}
+<p class="muted">No body weight entries{% if filtered %} in this date range{% endif %}.</p>
+{% endif %}
+<p><a href="{{ url_for('history.body_weight') }}">Log or edit body weight</a></p>
+{% endblock %}

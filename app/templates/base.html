@@ -13,6 +13,10 @@
       <a class="brand" href="{{ url_for('main.index') }}">FitPlus</a>
       {% if g.user %}
         <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('workouts.start') }}">Workout</a>
+        <a href="{{ url_for('routines.index') }}">Templates</a>
+        <a href="{{ url_for('history.index') }}">History</a>
+        <a href="{{ url_for('history.body_weight') }}">Body weight</a>
         <a href="{{ url_for('exercises.index') }}">Exercises</a>
         <a href="{{ url_for('profile.edit') }}">Profile</a>
         <form class="nav-logout" method="post" action="{{ url_for('auth.logout') }}">
@@ -26,6 +30,12 @@
     </nav>
   </header>
   <main id="main" class="container">
+    {% if g.active_workout and request.endpoint != 'workouts.view' %}
+      <div class="flash flash-info" role="status">
+        Workout in progress: <strong>{{ g.active_workout.name }}</strong>.
+        <a href="{{ url_for('workouts.view', session_id=g.active_workout.id) }}">Resume workout</a>
+      </div>
+    {% endif %}
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
         <div class="flash flash-{{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">{{ message }}</div>

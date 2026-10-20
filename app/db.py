@@ -5,14 +5,30 @@ Otherwise the app uses a SQLite file (DATABASE_PATH, default instance/fitness.sq
 
 All SQL in the app uses "?" placeholders; they are converted to "%s" for PostgreSQL.
 """
-import os
 import sqlite3
+from datetime import date, datetime
 from pathlib import Path
 
 import click
 from flask import current_app, g
 
 SCHEMA_DIR = Path(__file__).parent / "schema"
+
+
+# Explicit SQLite date/time handling (Python 3.12 deprecates the built-in defaults).
+# PostgreSQL returns date/datetime objects natively, so both drivers look the same.
+def _parse_ts(raw):
+    text = raw.decode()
+    try:
+        return datetime.fromisoformat(text)
+    except ValueError:
+        return datetime.strptime(text[:19], "%Y-%m-%d %H:%M:%S")
+
+
+sqlite3.register_adapter(datetime, lambda v: v.isoformat(" ", timespec="seconds"))
+sqlite3.register_adapter(date, lambda v: v.isoformat())
+sqlite3.register_converter("TIMESTAMP", _parse_ts)
+sqlite3.register_converter("DATE", lambda raw: date.fromisoformat(raw.decode()[:10]))
 
 
 def _is_postgres(url):

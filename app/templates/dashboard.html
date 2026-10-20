@@ -28,8 +28,14 @@
       <a class="button" href="{{ url_for('exercises.index') }}">Browse exercises</a>
     </div>
     <div class="card">
-      <h2>This week</h2>
-      <p class="muted">Workout logging and weekly summary arrive in the next sprints.</p>
+      <h2>Workouts</h2>
+      <p>{{ stats.workouts }} workout{{ '' if stats.workouts == 1 else 's' }} logged · {{ stats.templates }} template{{ '' if stats.templates == 1 else 's' }}</p>
+      {% if stats.last %}<p class="muted">Last: <a href="{{ url_for('workouts.view', session_id=stats.last.id) }}">{{ stats.last.name }}</a>, {{ stats.last.started_at|local(false) }}</p>{% endif %}
+      <p class="actions">
+        <a class="button" href="{{ url_for('workouts.start') }}">Start workout</a>
+        <a class="button secondary" href="{{ url_for('history.index') }}">History</a>
+      </p>
+      <p><a href="{{ url_for('routines.index') }}">Templates</a> · <a href="{{ url_for('history.body_weight') }}">Log body weight</a></p>
     </div>
   </div>
 {% endif %}

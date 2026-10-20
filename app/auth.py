@@ -98,6 +98,12 @@ def login():
             dummy_verify(password)
         elif verify_password(password, user["password_hash"]):
             _start_session(user["id"])
+            if not next_url:  # PB-20: go back to an unfinished workout after logging in
+                from .workouts import active_session
+
+                active = active_session(user["id"])
+                if active:
+                    next_url = url_for("workouts.view", session_id=active["id"])
             return redirect(next_url or url_for("main.dashboard"))
         flash("Incorrect email or password.", "error")
         return render_template("auth/login.html", email=email, next_url=next_url), 401

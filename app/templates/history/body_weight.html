@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Body weight{% endblock %}
+{% macro err(name) %}{% if errors[name] %}<p class="field-error" id="{{ name }}-error">{{ errors[name] }}</p>{% endif %}{% endmacro %}
+{% macro aria(name) %}{% if errors[name] %}aria-invalid="true" aria-describedby="{{ name }}-error"{% endif %}{% endmacro %}
+{% block content %}
+<h1>Body weight</h1>
+<form method="post" class="card inline-form" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div>
+    <label for="entry_date">Date</label>
+    <input id="entry_date" name="entry_date" type="date" max="{{ today }}" required value="{{ form.entry_date }}" {{ aria('entry_date') }}>
+    {{ err('entry_date') }}
+  </div>
+  <div>
+    <label for="weight">Weight ({{ unit }})</label>
+    <input id="weight" name="weight" type="number" step="0.1" inputmode="decimal" required value="{{ form.weight }}" {{ aria('weight') }}>
+    {{ err('weight') }}
+  </div>
+  <button type="submit" class="button">Log weight</button>
+</form>
+<h2 class="section">History</h2>
+{% if entries %}
+<div class="table-wrap">
+<table class="history">
+  <thead><tr><th scope="col">Date</th><th scope="col">Weight ({{ unit }})</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+  <tbody>
+  {% for e in entries %}
+    {% if edit_id == e.id %}
+    <tr><td colspan="3">
+      <form method="post" action="{{ url_for('history.update_body_weight', entry_id=e.id) }}" class="inline-form compact">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>Date <input name="entry_date" type="date" max="{{ today }}" value="{{ e.entry_date.isoformat() }}" required></label>
+        <label>Weight <input name="weight" type="number" step="0.1" value="{{ e.weight }}" required></label>
+        <button type="submit" class="button small">Save</button>
+        <a href="{{ url_for('history.body_weight') }}">Cancel</a>
+      </form>
+    </td></tr>
+    {% else %}
+    <tr>
+      <td>{{ e.entry_date.strftime('%a %b') }} {{ e.entry_date.day }}, {{ e.entry_date.year }}</td>
+      <td>{{ e.weight }}</td>
+      <td class="actions-cell">
+        <a href="{{ url_for('history.body_weight', edit=e.id) }}">Edit</a>
+        <a class="danger-text" href="{{ url_for('history.delete_body_weight', entry_id=e.id) }}">Delete</a>
+      </td>
+    </tr>
+    {% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="empty">No entries yet.</p>
+{% endif %}
+{% endblock %}

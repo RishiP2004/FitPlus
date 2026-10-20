@@ -1,0 +1,9 @@
+{# Exercise <select> grouped by muscle group. Needs: library, field id #}
+<select id="{{ picker_id }}" name="exercise_id" required>
+  <option value="">Choose an exercise…</option>
+  {% for group, items in library %}
+  <optgroup label="{{ group }}">
+    {% for ex in items %}<option value="{{ ex.id }}">{{ ex.name }} ({{ ex.equipment }})</option>{% endfor %}
+  </optgroup>
+  {% endfor %}
+</select>

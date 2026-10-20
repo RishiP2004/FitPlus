@@ -22,7 +22,29 @@ CPS714 Group 11 project. A responsive web app to plan workouts, log sessions and
 | PB-12 | Search by name (live, in-browser) | `static/exercises.js` |
 | PB-13 | Filter by muscle group + equipment, combined with search | `/exercises/` |
 
-Each story's acceptance criteria are tested in `tests/` (36 tests).
+## Sprint 2 (Oct 12 – Oct 23) — what's in this release (R1 – MVP)
+
+| ID | Story | Where |
+|---|---|---|
+| PB-14 | Create and name a workout template | `/templates/`, `app/routines.py` |
+| PB-15 | Add, reorder, remove exercises; target sets/reps | `/templates/<id>` |
+| PB-16 | Edit (rename, change targets) and delete templates | `/templates/<id>`, confirm page |
+| PB-17 | Start a workout from a template or blank | `/workouts/start`, `app/workouts.py` |
+| PB-18 | Log sets, reps and weight under each exercise | `/workouts/<id>` |
+| PB-19 | Finish and save a session with date and duration | Finish workout button |
+| PB-20 | In-progress workout survives refresh; app returns to it | sets saved on add; `/`, login and banner resume it |
+| PB-21 | Workout history, newest first; open a session for all sets | `/history`, `app/history.py` |
+| PB-22 | Filter history by date range | `/history?from=…&to=…` |
+| PB-23 | Edit logged sets in past sessions | Edit link on each set |
+| PB-24 | Delete past sessions (with confirmation) | Delete this workout |
+| PB-25 | Notes on sessions (up to 500 characters) | Notes box on the session page |
+| PB-26 | Body weight: one entry per date, edit/delete, listed in history | `/body-weight` |
+
+Weights are stored in kg and shown in the user's profile unit (kg or lb). Times are stored in UTC
+and shown in `DISPLAY_TZ` (default America/Toronto). Sprint 2 tables are in `app/schema/002_*.sql`
+and are applied automatically on start-up.
+
+Each story's acceptance criteria are tested in `tests/` (89 tests: 36 from Sprint 1, 53 for Sprint 2).
 
 ## Run it locally
 
@@ -51,6 +73,7 @@ pytest -q --cov=app
 | `DATABASE_PATH` | `instance/fitness.sqlite3` | SQLite file location |
 | `SESSION_COOKIE_SECURE` | `0` | Set `1` behind HTTPS |
 | `AUTO_INIT_DB` | `1` | Migrate + seed on startup |
+| `DISPLAY_TZ` | `America/Toronto` | Timezone used to show times and filter history by date |
 
 ## One-time setup (Sprint 1 tasks that need a person)
 
@@ -67,7 +90,7 @@ pytest -q --cov=app
 ## Project layout
 
 ```
-app/            Flask app (blueprints: main, auth, profile, exercises)
+app/            Flask app (blueprints: main, auth, profile, exercises, routines, workouts, history)
   schema/       SQL migrations (SQLite + PostgreSQL)
   templates/    Jinja pages
   static/       CSS + JS

@@ -76,3 +76,47 @@ fieldset.units legend { font-weight: 600; margin-bottom: .4rem; }
   .grid-3, .filters { grid-template-columns: 1fr; }
   .hero h1 { font-size: 1.7rem; }
 }
+
+/* ---- Sprint 2: templates, workouts, history, body weight ---- */
+input[type=text], input[type=date], textarea {
+  width: 100%; padding: .6rem .7rem; border: 1px solid var(--border); border-radius: 8px; font: inherit; background: var(--surface); color: var(--text);
+}
+textarea { resize: vertical; }
+.flash-info { background: var(--tag); color: var(--text); }
+.page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
+.section { margin-top: 1.75rem; }
+.row { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.grow { flex: 1 1 auto; min-width: 0; }
+.inline-form { display: flex; align-items: flex-end; gap: .75rem 1rem; flex-wrap: wrap; margin: 1rem 0; }
+.inline-form > div { flex: 1 1 180px; }
+.inline-form label { margin-top: 0; }
+.inline-form.compact { margin: .5rem 0 0; align-items: center; }
+.inline-form.compact label { display: inline-flex; align-items: center; gap: .4rem; font-weight: 400; margin: 0; }
+.inline-form.compact input { width: 6.5rem; padding: .4rem .5rem; }
+.item-list { list-style: none; margin: 1rem 0; padding: 0; display: grid; gap: .6rem; }
+.item-title { font-weight: 600; text-decoration: none; margin-right: .5rem; }
+.plain-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.icon-button { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; width: 2.2rem; height: 2.2rem; font: inherit; cursor: pointer; color: var(--text); }
+.icon-button:disabled, .button:disabled { opacity: .4; cursor: default; }
+.button.danger { background: var(--error); }
+.danger-text { color: var(--error); }
+.align-end { display: flex; align-items: flex-end; }
+.exercise-block { margin-top: 1rem; }
+.exercise-block h2 .hint { margin-left: .5rem; }
+table.sets, table.history { width: 100%; border-collapse: collapse; margin-top: .5rem; }
+table.sets th, table.sets td, table.history th, table.history td { text-align: left; padding: .45rem .5rem; border-bottom: 1px solid var(--border); }
+table.history { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.table-wrap { overflow-x: auto; }
+.actions-cell { display: flex; gap: 1rem; align-items: center; justify-content: flex-end; }
+.actions-cell form { margin: 0; }
+.history-filters { grid-template-columns: 1fr 1fr auto; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 640px) {
+  .history-filters { grid-template-columns: 1fr; }
+  .inline-form.compact input { width: 5rem; }
+}
+table.history td:first-child { white-space: nowrap; }
+.card > label:first-of-type { margin-top: 0; }
+@media (max-width: 640px) {
+  .nav { gap: .35rem .9rem; }
+}
